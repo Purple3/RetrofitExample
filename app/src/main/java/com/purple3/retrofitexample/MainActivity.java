@@ -17,6 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
+    private static final String API_KEY="c11aeab206b080001633b02d4323938a";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,29 +38,30 @@ public class MainActivity extends AppCompatActivity {
 
         Api api = retrofit.create(Api.class);
 
-        Call<List<Hero>> call = api.getHeroes();
+        Call<MovieDetailsResponse> call = api.getHeroes(API_KEY);
 
-        call.enqueue(new Callback<List<Hero>>() {
+        call.enqueue(new Callback<MovieDetailsResponse>() {
             @Override
-            public void onResponse(Call<List<Hero>> call, Response<List<Hero>> response) {
-                List<Hero> heroList = response.body();
+            public void onResponse(Call<MovieDetailsResponse> call, Response<MovieDetailsResponse> response) {
+                MovieDetailsResponse results = response.body();
 
                 //Creating an String array for the ListView
-                String[] heroes = new String[heroList.size()];
+                List<MovieDetails> movieDetails = results.getResults();
 
+                String[] movies = new String[movieDetails.size()];
                 //looping through all the heroes and inserting the names inside the string array
-                for (int i = 0; i < heroList.size(); i++) {
-                    heroes[i] = heroList.get(i).getName();
+                for (int i = 0; i < movieDetails.size(); i++) {
+                    movies[i] = movieDetails.get(i).getTitle();
                 }
 
 
                 //displaying the string array into listview
-                listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, heroes));
+                listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, movies));
 
             }
 
             @Override
-            public void onFailure(Call<List<Hero>> call, Throwable t) {
+            public void onFailure(Call<MovieDetailsResponse> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
